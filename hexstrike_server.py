@@ -65,6 +65,19 @@ from mitmproxy import http as mitmhttp
 from mitmproxy.tools.dump import DumpMaster
 from mitmproxy.options import Options as MitmOptions
 
+# Import persistence and RAG layers (NEW)
+try:
+    from hexstrike_persistence import get_persistence
+    from hexstrike_checkpoint import ResilientScanWrapper
+    from hexstrike_rag import get_rag
+    from hexstrike_optimizer import get_optimizer, get_context_manager
+    from hexstrike_evolution import get_evolution_engine, get_chain_engine
+    from hexstrike_reporting import get_reporter
+    V2_ENABLED = True
+except ImportError as e:
+    logger.warning(f"Could not import V2 modules: {e}")
+    V2_ENABLED = False
+
 # ============================================================================
 # LOGGING CONFIGURATION (MUST BE FIRST)
 # ============================================================================
@@ -17249,6 +17262,171 @@ def get_alternative_tools():
     except Exception as e:
         logger.error(f"Error getting alternative tools: {str(e)}")
         return jsonify({"error": f"Server error: {str(e)}"}), 500
+
+# ========== V2 API: PERSISTENCE LAYER & RAG (NEW) ==========
+
+if V2_ENABLED:
+    persistence = get_persistence()
+    rag = get_rag()
+    optimizer = get_optimizer()
+    context_manager = get_context_manager()
+    resilient_wrapper = ResilientScanWrapper()
+
+    # Project Management
+    @app.route('/api/v2/projects', methods=['POST'])
+    def create_project_v2():
+        data = request.json or {}
+        if 'name' not in data or 'target' not in data:
+            return jsonify({"error": "Missing project name or target"}), 400
+        
+        project_id = persistence.create_project(
+            name=data['name'],
+            target=data['target'],
+            description=data.get('description', ''),
+            target_type=data.get('target_type'),
+            metadata=data.get('metadata')
+        )
+        return jsonify({"project_id": project_id, "status": "created"}), 201
+
+    @app.route('/api/v2/projects', methods=['GET'])
+    def list_projects_v2():
+        status = request.args.get('status')
+        projects = persistence.list_projects(status)
+        return jsonify({"projects": projects})
+
+    @app.route('/api/v2/projects/<project_id>', methods=['GET'])
+    def get_project_v2(project_id):
+        project = persistence.get_project(project_id)
+        if not project:
+            return jsonify({"error": "Project not found"}), 404
+        return jsonify(project)
+
+    @app.route('/api/v2/projects/<project_id>', methods=['PUT'])
+    def update_project_v2(project_id):
+        data = request.json or {}
+        success = persistence.update_project(project_id, **data)
+        return jsonify({"success": success})
+
+    # Session Management
+    @app.route('/api/v2/projects/<project_id>/sessions', methods=['POST'])
+    def start_session_v2(project_id):
+        data = request.json or {}
+        session_id = persistence.start_session(project_id, context=data.get('context'))
+        return jsonify({"session_id": session_id, "status": "started"})
+
+    @app.route('/api/v2/projects/<project_id>/sessions', methods=['GET'])
+    def list_sessions_v2(project_id):
+        sessions = persistence.get_project_sessions(project_id)
+        return jsonify({"sessions": sessions})
+
+    @app.route('/api/v2/sessions/<session_id>', methods=['GET'])
+    def get_session_v2(session_id):
+        session = persistence.get_session(session_id)
+        if not session:
+            return jsonify({"error": "Session not found"}), 404
+        return jsonify(session)
+
+    @app.route('/api/v2/sessions/<session_id>/end', methods=['PUT'])
+    def end_session_v2(session_id):
+        persistence.end_session(session_id)
+        return jsonify({"status": "ended"})
+
+    # Scan Resilience
+    @app.route('/api/v2/scans/<scan_id>', methods=['GET'])
+    def get_scan_v2(scan_id):
+        scan = persistence.get_scan(scan_id)
+        if not scan:
+            return jsonify({"error": "Scan not found"}), 404
+        return jsonify(scan)
+
+    @app.route('/api/v2/scans/incomplete', methods=['GET'])
+    def list_incomplete_scans_v2():
+        project_id = request.args.get('project_id')
+        scans = persistence.get_incomplete_scans(project_id)
+        return jsonify({"scans": scans})
+
+    @app.route('/api/v2/scans/<scan_id>/resume', methods=['POST'])
+    def resume_scan_v2(scan_id):
+        if not resilient_wrapper.can_resume(scan_id):
+            return jsonify({"error": "Scan cannot be resumed"}), 400
+        
+        resume_data = resilient_wrapper.get_resume_data(scan_id)
+        # Logic to restart the scan with existing parameters
+        return jsonify({"status": "resuming", "resume_data": resume_data})
+
+    # Findings Management
+    @app.route('/api/v2/projects/<project_id>/findings', methods=['GET'])
+    def list_findings_v2(project_id):
+        severity = request.args.get('severity')
+        findings = persistence.get_project_findings(project_id, severity)
+        return jsonify({"findings": findings})
+
+    @app.route('/api/v2/findings/search', methods=['GET'])
+    def search_findings_v2():
+        query = request.args.get('q', '')
+        project_id = request.args.get('project_id')
+        findings = persistence.search_findings(query, project_id)
+        return jsonify({"findings": findings})
+
+    # RAG Endpoints
+    @app.route('/api/v2/rag/query', methods=['POST'])
+    def query_rag_v2():
+        data = request.json or {}
+        query = data.get('query', '')
+        results = rag.query_knowledge(query)
+        return jsonify({"results": results})
+
+    @app.route('/api/v2/rag/context', methods=['POST'])
+    def get_rag_context_v2():
+        data = request.json or {}
+        target = data.get('target')
+        project_id = data.get('project_id')
+        request_type = data.get('request_type')
+        
+        context = rag.enrich_request_context(request_type, target, project_id)
+        return jsonify(context)
+
+    # Evolution and Chaining Endpoints
+    @app.route('/api/v2/evolution/learn', methods=['POST'])
+    def learn_tool_v2():
+        data = request.json or {}
+        tool_name = data.get('tool_name')
+        if not tool_name:
+            return jsonify({"error": "Missing tool_name"}), 400
+        result = get_evolution_engine().discover_tool(tool_name)
+        return jsonify(result)
+
+    @app.route('/api/v2/evolution/execute', methods=['POST'])
+    def execute_arbitrary_tool_v2():
+        data = request.json or {}
+        tool_name = data.get('tool_name')
+        args = data.get('args', [])
+        if not tool_name:
+            return jsonify({"error": "Missing tool_name"}), 400
+        result = get_evolution_engine().execute_arbitrary_tool(tool_name, args)
+        
+        # Correlate immediately after execution
+        if 'stdout' in result and result['stdout']:
+            suggestions = get_chain_engine().correlate_and_suggest(tool_name, result['stdout'])
+            if suggestions:
+                result['next_suggestions'] = suggestions
+                
+        return jsonify(result)
+
+    @app.route('/api/v2/evolution/learned', methods=['GET'])
+    def list_learned_tools_v2():
+        tools = get_evolution_engine().list_learned_tools()
+        return jsonify({"learned_tools": tools})
+
+    # Reporting Endpoints
+    @app.route('/api/v2/projects/<project_id>/report', methods=['POST'])
+    def generate_report_v2(project_id):
+        data = request.json or {}
+        template = data.get('template', 'standard')
+        result = get_reporter().generate_report(project_id, template)
+        if "error" in result:
+            return jsonify(result), 404
+        return jsonify(result)
 
 # Create the banner after all classes are defined
 BANNER = ModernVisualEngine.create_banner()

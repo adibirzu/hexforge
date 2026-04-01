@@ -1,0 +1,32 @@
+# HexStrike AI Gitignore
+
+# Data and Persistence
+data/
+reports/
+hexstrike.log
+*.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+hexstrike-env/
+hexstrike_env/
+.env
+.venv
+venv/
+ENV/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project specific
+schemas/hexstrike.db
+data/evolution/learned_tools.json
+data/rag/chroma/

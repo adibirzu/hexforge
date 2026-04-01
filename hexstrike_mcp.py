@@ -5411,6 +5411,120 @@ def setup_mcp_server(hexstrike_client: HexStrikeClient) -> FastMCP:
 
         return result
 
+    # ============================================================================
+    # V2 TOOLS: PERSISTENCE, PROJECTS & RAG (NEW)
+    # ============================================================================
+
+    @mcp.tool()
+    def create_project(name: str, target: str, description: str = "") -> Dict[str, Any]:
+        """
+        Create a new security testing project to organize scans and findings.
+
+        Args:
+            name: Project name (e.g., 'Internal Network Audit')
+            target: Primary target (e.g., '10.0.0.0/24' or 'example.com')
+            description: Optional project description
+        """
+        return hexstrike_client.safe_post("api/v2/projects", {
+            "name": name,
+            "target": target,
+            "description": description
+        })
+
+    @mcp.tool()
+    def list_projects() -> Dict[str, Any]:
+        """List all available security testing projects."""
+        return hexstrike_client.safe_get("api/v2/projects")
+
+    @mcp.tool()
+    def get_project(project_id: str) -> Dict[str, Any]:
+        """Get detailed information about a specific project."""
+        return hexstrike_client.safe_get(f"api/v2/projects/{project_id}")
+
+    @mcp.tool()
+    def start_session(project_id: str) -> Dict[str, Any]:
+        """Start a new work session for a project to track related scans."""
+        return hexstrike_client.safe_post(f"api/v2/projects/{project_id}/sessions", {})
+
+    @mcp.tool()
+    def end_session(session_id: str) -> Dict[str, Any]:
+        """End an active work session."""
+        return hexstrike_client.safe_post(f"api/v2/sessions/{session_id}/end", {})
+
+    @mcp.tool()
+    def get_scan_status(scan_id: str) -> Dict[str, Any]:
+        """Get the status and progress of a persistent scan."""
+        return hexstrike_client.safe_get(f"api/v2/scans/{scan_id}")
+
+    @mcp.tool()
+    def list_incomplete_scans(project_id: str = None) -> Dict[str, Any]:
+        """List scans that are currently running or interrupted and can be resumed."""
+        params = {"project_id": project_id} if project_id else {}
+        return hexstrike_client.safe_get("api/v2/scans/incomplete", params)
+
+    @mcp.tool()
+    def resume_scan(scan_id: str) -> Dict[str, Any]:
+        """Resume an interrupted scan from its last checkpoint."""
+        return hexstrike_client.safe_post(f"api/v2/scans/{scan_id}/resume", {})
+
+    @mcp.tool()
+    def query_knowledge(query: str) -> Dict[str, Any]:
+        """Query the HexStrike AI security knowledge base using semantic search."""
+        return hexstrike_client.safe_post("api/v2/rag/query", {"query": query})
+
+    @mcp.tool()
+    def find_similar_findings(finding_id: str) -> Dict[str, Any]:
+        """Find past findings that are semantically similar to a given finding."""
+        return hexstrike_client.safe_get(f"api/v2/rag/similar/{finding_id}")
+
+    @mcp.tool()
+    def get_target_context(target: str, project_id: str = None) -> Dict[str, Any]:
+        """Get relevant historical context and past findings for a specific target."""
+        return hexstrike_client.safe_post("api/v2/rag/context", {
+            "target": target,
+            "project_id": project_id,
+            "request_type": "target_analysis"
+        })
+
+    # ============================================================================
+    # V2 TOOLS: UNIVERSAL EXECUTION & EVOLUTION (NEW)
+    # ============================================================================
+    
+    @mcp.tool()
+    def learn_new_tool(tool_name: str) -> Dict[str, Any]:
+        """
+        Dynamically learn how to use a new command-line tool installed on the system.
+        Provides you with its man page or help menu so you know how to execute it later.
+        """
+        return hexstrike_client.safe_post("api/v2/evolution/learn", {"tool_name": tool_name})
+        
+    @mcp.tool()
+    def execute_arbitrary_tool(tool_name: str, args: List[str]) -> Dict[str, Any]:
+        """
+        Execute ANY tool on the system with specific arguments.
+        It will automatically correlate the output and suggest the next logical step.
+        Example: execute_arbitrary_tool("nmap", ["-sV", "-p-", "target.com"])
+        """
+        return hexstrike_client.safe_post("api/v2/evolution/execute", {
+            "tool_name": tool_name,
+            "args": args
+        })
+        
+    @mcp.tool()
+    def list_learned_tools() -> Dict[str, Any]:
+        """List all tools that HexStrike has dynamically learned so far."""
+        return hexstrike_client.safe_get("api/v2/evolution/learned")
+
+    @mcp.tool()
+    def generate_report(project_id: str, template: str = "standard") -> Dict[str, Any]:
+        """
+        Generate a professional penetration testing report for a project.
+        Templates: 'standard', 'ncc' (NCC Group style), 'offsec' (OffSec style).
+        """
+        return hexstrike_client.safe_post(f"api/v2/projects/{project_id}/report", {
+            "template": template
+        })
+
     return mcp
 
 def parse_args():
