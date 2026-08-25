@@ -152,6 +152,35 @@ HexStrike AI Enhanced is intended for **authorized penetration testing** and **s
 
 ---
 
+## KaliVM Execution Host (deploy/)
+
+Reproducible provisioning for the fleet's Kali VM pentest host. Every host,
+user, key, and binary location is a variable - nothing is hardcoded.
+
+| File | Purpose |
+|---|---|
+| `bootstrap-kali.sh` | Idempotent prerequisite installer: apt layer, PATH repairs, pinned Go tools, optional extras. Exits nonzero if any core tool is still missing. Run with `sudo` on the VM. |
+| `kali-inventory.sh` | Emits a JSON manifest of the toolchain (OS, arch, kernel, package count, per-tool path + version). Redirect to `kali-tools-<date>.json` to snapshot. |
+| `remote-run.sh` | Drives either script over the SSH jump chain from an operator host. |
+| `kali-tools-2026-08-25.json` | Captured inventory: 49/50 tools present on arm64 Kali Rolling. |
+
+### Quick start
+
+```bash
+# From an operator host with jump access:
+KALI_USER=adi KALI_HOST=kali.cyber-sec.ro KALI_JUMP_HOST=adi@adi1 \
+  deploy/remote-run.sh deploy/bootstrap-kali.sh
+
+# Snapshot the toolchain afterwards:
+KALI_USER=adi KALI_HOST=kali.cyber-sec.ro KALI_JUMP_HOST=adi@adi1 \
+  deploy/remote-run.sh deploy/kali-inventory.sh > deploy/kali-tools-$(date +%F).json
+```
+
+Overrides: `GO_BIN_DIR`, `INSTALL_OPTIONAL`, `APT_UPDATE`, `SUDO`, `KALI_*`.
+Go tools are version-pinned in `GO_TOOLS_PINNED` for deterministic builds.
+
+---
+
 ## Author
 **adibirzu** - [GitHub](https://github.com/adibirzu)
 
