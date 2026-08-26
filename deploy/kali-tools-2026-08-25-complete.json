@@ -1,0 +1,32 @@
+{
+  "date": "2026-08-26T00:22:09+03:00",
+  "host": "kali-arm64",
+  "tools": {
+    "nmap": {"path": "/usr/bin/nmap", "version": "7.99"},
+    "nuclei": {"path": "/usr/bin/nuclei", "version": "v3.11.1"},
+    "sqlmap": {"path": "/usr/local/bin/sqlmap", "version": "1.10.8"},
+    "katana": {"path": "/usr/local/bin/katana", "version": "v1.7.0"},
+    "dalfox": {"path": "/usr/local/bin/dalfox", "version": "v2.13.0"},
+    "gau": {"path": "/usr/local/bin/gau", "version": "2.2.4"},
+    "waybackurls": {"path": "/usr/local/bin/waybackurls", "version": null},
+    "sslscan": {"path": "/usr/bin/sslscan", "version": "2.1.5"},
+    "testssl.sh": {"path": "/usr/local/bin/testssl.sh", "version": "3.2.4"},
+    "httpx": {"path": "/usr/bin/httpx", "version": "v1.9.0"},
+    "httpx-go": {"path": "/home/adi/go/bin/httpx", "version": "v1.10.0"},
+    "feroxbuster": {"path": "/usr/bin/feroxbuster", "version": "2.13.1"},
+    "subfinder": {"path": "/usr/bin/subfinder", "version": "v2.15.0"},
+    "dnsx": {"path": "/usr/bin/dnsx", "version": null},
+    "ffuf": {"path": "/usr/bin/ffuf", "version": "v2.1.0-dev"},
+    "wafw00f": {"path": "/usr/local/bin/wafw00f", "version": "2.4.2"},
+    "sslyze": {"path": "/usr/local/bin/sslyze", "version": "6.3.1"},
+    "dig": {"path": "/usr/bin/dig", "version": "9.20.20"},
+    "whois": {"path": "/usr/bin/whois", "version": "5.6.6"},
+    "jq": {"path": "/usr/bin/jq", "version": "1.8.2"},
+    "rg": {"path": "/usr/bin/rg", "version": "15.2.0"},
+    "curl": {"path": "/usr/bin/curl", "version": "8.18.0"},
+    "wget": {"path": "/usr/bin/wget", "version": "1.25.0"},
+    "python3": {"path": "/usr/bin/python3", "version": "3.13.12"},
+    "go": {"path": "/usr/bin/go", "version": "1.26.5"},
+    "msfconsole": {"path": "/usr/bin/msfconsole", "version": "6.4.116-dev"}
+  }
+}
