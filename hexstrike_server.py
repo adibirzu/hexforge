@@ -7,7 +7,7 @@ Enhanced with AI-Powered Intelligence & Automation
 
 RECENT ENHANCEMENTS (v6.5 Enhanced):
 ✅ Persistent storage, RAG, checkpoint, optimizer, evolution, reporting
-✅ /health reports version 6.5.0, edition=enhanced, and enhanced_modules
+✅ /health reports version 6.5.0, edition=hexforge, and enhanced_modules
 ✅ v6.0 visual engine, 100+ tools, and AI decision engine retained
 
 Architecture: Two-script system (hexstrike_server.py + hexstrike_mcp.py)
