@@ -18,7 +18,24 @@ KALI_HOST="${KALI_HOST:-kali.cyber-sec.ro}"
 KALI_JUMP_HOST="${KALI_JUMP_HOST:-adi@adi1}"
 KALI_SSH_KEY="${KALI_SSH_KEY:-$HOME/.ssh/kali_pentest_ed25519}"
 
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+
+if [ ! -f "$KALI_SSH_KEY" ]; then
+  printf 'remote-run: missing SSH key %s (KaliVM credential). See deploy/FLEET.md.\n' "$KALI_SSH_KEY" >&2
+  exit 3
+fi
+
+if [ "$#" -lt 1 ]; then
+  printf 'remote-run: usage: deploy/remote-run.sh <bootstrap|inventory|path-to-script> [args...]\n' >&2
+  exit 2
+fi
+
 script="$1"; shift
+
+case "$script" in
+  bootstrap) script="$ROOT/deploy/bootstrap-kali.sh" ;;
+  inventory) script="$ROOT/deploy/kali-inventory.sh" ;;
+esac
 
 if [ ! -f "$script" ]; then
   printf 'remote-run: script not found: %s\n' "$script" >&2
