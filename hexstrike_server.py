@@ -5,14 +5,10 @@ HexStrike AI - Advanced Penetration Testing Framework Server
 Enhanced with AI-Powered Intelligence & Automation
 🚀 Bug Bounty | CTF | Red Team | Security Research
 
-RECENT ENHANCEMENTS (v6.0):
-✅ Complete color consistency with reddish hacker theme
-✅ Removed duplicate classes (PythonEnvironmentManager, CVEIntelligenceManager)
-✅ Enhanced visual output with ModernVisualEngine
-✅ Organized code structure with proper section headers
-✅ 100+ security tools with intelligent parameter optimization
-✅ AI-driven decision engine for tool selection
-✅ Advanced error handling and recovery systems
+RECENT ENHANCEMENTS (v6.5 Enhanced):
+✅ Persistent storage, RAG, checkpoint, optimizer, evolution, reporting
+✅ /health reports version 6.5.0, edition=enhanced, and enhanced_modules
+✅ v6.0 visual engine, 100+ tools, and AI decision engine retained
 
 Architecture: Two-script system (hexstrike_server.py + hexstrike_mcp.py)
 Framework: FastMCP integration for AI agent communication
@@ -65,19 +61,6 @@ from mitmproxy import http as mitmhttp
 from mitmproxy.tools.dump import DumpMaster
 from mitmproxy.options import Options as MitmOptions
 
-# Import persistence and RAG layers (NEW)
-try:
-    from hexstrike_persistence import get_persistence
-    from hexstrike_checkpoint import ResilientScanWrapper
-    from hexstrike_rag import get_rag
-    from hexstrike_optimizer import get_optimizer, get_context_manager
-    from hexstrike_evolution import get_evolution_engine, get_chain_engine
-    from hexstrike_reporting import get_reporter
-    V2_ENABLED = True
-except ImportError as e:
-    logger.warning(f"Could not import V2 modules: {e}")
-    V2_ENABLED = False
-
 # ============================================================================
 # LOGGING CONFIGURATION (MUST BE FIRST)
 # ============================================================================
@@ -102,6 +85,21 @@ except PermissionError:
         ]
     )
 logger = logging.getLogger(__name__)
+
+from hexstrike_identity import health_identity
+
+# Import persistence and RAG layers (NEW). After logging so ImportError is reportable.
+try:
+    from hexstrike_persistence import get_persistence
+    from hexstrike_checkpoint import ResilientScanWrapper
+    from hexstrike_rag import get_rag
+    from hexstrike_optimizer import get_optimizer, get_context_manager
+    from hexstrike_evolution import get_evolution_engine, get_chain_engine
+    from hexstrike_reporting import get_reporter
+    V2_ENABLED = True
+except ImportError as e:
+    logger.warning(f"Could not import V2 modules: {e}")
+    V2_ENABLED = False
 
 # Flask app configuration
 app = Flask(__name__)
@@ -9033,6 +9031,16 @@ file_manager = FileOperationsManager()
 
 # API Routes
 
+@app.route("/health/identity", methods=["GET"])
+def health_identity_check():
+    """Fast identity probe: version, edition, and enhanced modules (no tool scan)."""
+    identity = health_identity(v2_enabled=V2_ENABLED)
+    return jsonify({
+        "status": "healthy",
+        "message": "HexForge API Server is operational",
+        **identity,
+    })
+
 @app.route("/health", methods=["GET"])
 def health_check():
     """Health check endpoint with comprehensive tool detection"""
@@ -9133,10 +9141,15 @@ def health_check():
         "additional": {"total": len(additional_tools), "available": sum(1 for tool in additional_tools if tools_status.get(tool, False))}
     }
 
+    identity = health_identity(v2_enabled=V2_ENABLED)
     return jsonify({
         "status": "healthy",
-        "message": "HexStrike AI Tools API Server is operational",
-        "version": "6.0.0",
+        "message": "HexForge API Server is operational",
+        "version": identity["version"],
+        "edition": identity["edition"],
+        "v2_enabled": identity["v2_enabled"],
+        "enhanced_modules": identity["enhanced_modules"],
+        "rag_backends": identity["rag_backends"],
         "tools_status": tools_status,
         "all_essential_tools_available": all_essential_tools_available,
         "total_tools_available": sum(1 for tool, available in tools_status.items() if available),

@@ -139,8 +139,11 @@ for handler in logging.getLogger().handlers:
 
 logger = logging.getLogger(__name__)
 
-# Default configuration
-DEFAULT_HEXSTRIKE_SERVER = "http://127.0.0.1:8888"  # Default HexStrike server URL
+# Default configuration. HEXSTRIKE_URL wins; otherwise HEXSTRIKE_PORT (default 8888).
+DEFAULT_HEXSTRIKE_SERVER = os.environ.get(
+    "HEXSTRIKE_URL",
+    f"http://127.0.0.1:{os.environ.get('HEXSTRIKE_PORT', '8888')}",
+)
 DEFAULT_REQUEST_TIMEOUT = 300  # 5 minutes default timeout for API requests
 MAX_RETRIES = 3  # Maximum number of retries for connection attempts
 

@@ -1,4 +1,4 @@
-# HexStrike Enhancement - Implementation Checklist v2.1
+# HexForge Implementation Checklist v2.1
 
 ## Focused on Missing Features Only
 
