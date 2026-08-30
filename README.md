@@ -164,6 +164,14 @@ deploy/run-operator.sh          # binds :8889 when :8888 is already taken
 curl -sS http://127.0.0.1:8889/health/identity
 ```
 
+The API binds to `127.0.0.1` by default; set `HEXSTRIKE_HOST` only when remote
+access is intentional. For a local companion that disables the direct
+command, payload-generation, and evolution-execute endpoints, set
+`AETHEROPS_LAB=1`. This lab profile returns 404 for `/api/command`,
+`/api/payloads/generate`, and `/api/v2/evolution/execute`, and omits the
+`execute_command` and `generate_payload` MCP tools. It does not disable every
+execution path — other tool and process endpoints still run commands.
+
 `/health` and `/health/identity` must show `product: "HexForge"`, `version: "6.5.0"`, `edition: "hexforge"`, and the v2 modules (persistence, rag, checkpoint, optimizer, evolution, reporting). Legacy HexStrike v6.0 reports `6.0.0` and has no `/api/v2/*`.
 
 ## KaliVM Execution Host (deploy/)

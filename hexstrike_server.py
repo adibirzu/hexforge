@@ -35,7 +35,7 @@ import shutil
 import venv
 import zipfile
 from pathlib import Path
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, abort
 import psutil
 import signal
 import requests
@@ -87,6 +87,7 @@ except PermissionError:
 logger = logging.getLogger(__name__)
 
 from hexstrike_identity import health_identity
+from hexstrike_lab import DEFAULT_API_HOST, is_lab_blocked_path
 
 # Import persistence and RAG layers (NEW). After logging so ImportError is reportable.
 try:
@@ -107,7 +108,13 @@ app.config['JSON_SORT_KEYS'] = False
 
 # API Configuration
 API_PORT = int(os.environ.get('HEXSTRIKE_PORT', 8888))
-API_HOST = os.environ.get('HEXSTRIKE_HOST', '127.0.0.1')
+API_HOST = os.environ.get('HEXSTRIKE_HOST', DEFAULT_API_HOST)
+
+
+@app.before_request
+def enforce_lab_profile():
+    if is_lab_blocked_path(request.path):
+        abort(404)
 
 # ============================================================================
 # MODERN VISUAL ENGINE (v2.0 ENHANCEMENT)
@@ -17477,4 +17484,4 @@ if __name__ == "__main__":
         if line.strip():
             logger.info(line)
 
-    app.run(host="0.0.0.0", port=API_PORT, debug=DEBUG_MODE)
+    app.run(host=API_HOST, port=API_PORT, debug=DEBUG_MODE)
