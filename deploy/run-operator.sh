@@ -11,7 +11,7 @@
 #
 # Environment:
 #   HEXSTRIKE_PORT   bind port (auto 8889 when 8888 is occupied and unset)
-#   HEXSTRIKE_HOST   flask bind host (the server currently listens 0.0.0.0)
+#   HEXSTRIKE_HOST   flask bind host (default: 127.0.0.1)
 #   HEXSTRIKE_VENV   virtualenv directory (default: ./hexstrike-env)
 
 set -euo pipefail

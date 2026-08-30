@@ -21,12 +21,13 @@ import sys
 import os
 import argparse
 import logging
-from typing import Dict, Any, Optional
+from typing import Dict, Any, List, Optional
 import requests
 import time
 from datetime import datetime
 
 from mcp.server.fastmcp import FastMCP
+from hexstrike_lab import lab_profile_enabled
 
 class HexStrikeColors:
     """Enhanced color palette matching the server's ModernVisualEngine.COLORS"""
@@ -278,6 +279,11 @@ def setup_mcp_server(hexstrike_client: HexStrikeClient) -> FastMCP:
         Configured FastMCP instance
     """
     mcp = FastMCP("hexstrike-ai-mcp")
+
+    def lab_restricted_tool():
+        if lab_profile_enabled():
+            return lambda function: function
+        return mcp.tool()
 
     # ============================================================================
     # CORE NETWORK SCANNING TOOLS
@@ -910,7 +916,7 @@ def setup_mcp_server(hexstrike_client: HexStrikeClient) -> FastMCP:
             logger.error(f"❌ Failed to list files in {directory}")
         return result
 
-    @mcp.tool()
+    @lab_restricted_tool()
     def generate_payload(payload_type: str = "buffer", size: int = 1024, pattern: str = "A", filename: str = "") -> Dict[str, Any]:
         """
         Generate large payloads for testing and exploitation.
@@ -3392,42 +3398,6 @@ def setup_mcp_server(hexstrike_client: HexStrikeClient) -> FastMCP:
         return result
 
     @mcp.tool()
-    def httpx_probe(targets: str = "", target_file: str = "", ports: str = "", methods: str = "GET", status_code: str = "", content_length: bool = False, output_file: str = "", additional_args: str = "") -> Dict[str, Any]:
-        """
-        Execute HTTPx for HTTP probing with enhanced logging.
-
-        Args:
-            targets: Target URLs or IPs
-            target_file: File containing targets
-            ports: Ports to probe
-            methods: HTTP methods to use
-            status_code: Filter by status code
-            content_length: Show content length
-            output_file: Output file path
-            additional_args: Additional HTTPx arguments
-
-        Returns:
-            HTTP probing results
-        """
-        data = {
-            "targets": targets,
-            "target_file": target_file,
-            "ports": ports,
-            "methods": methods,
-            "status_code": status_code,
-            "content_length": content_length,
-            "output_file": output_file,
-            "additional_args": additional_args
-        }
-        logger.info(f"🌐 Starting HTTPx probing")
-        result = hexstrike_client.safe_post("api/tools/httpx", data)
-        if result.get("success"):
-            logger.info(f"✅ HTTPx probing completed")
-        else:
-            logger.error(f"❌ HTTPx probing failed")
-        return result
-
-    @mcp.tool()
     def paramspider_discovery(domain: str, exclude: str = "", output_file: str = "", level: int = 2, additional_args: str = "") -> Dict[str, Any]:
         """
         Execute ParamSpider for parameter discovery with enhanced logging.
@@ -3968,7 +3938,7 @@ def setup_mcp_server(hexstrike_client: HexStrikeClient) -> FastMCP:
             logger.error("❌ Failed to get process dashboard")
         return result
 
-    @mcp.tool()
+    @lab_restricted_tool()
     def execute_command(command: str, use_cache: bool = True) -> Dict[str, Any]:
         """
         Execute an arbitrary command on the HexStrike AI server with enhanced logging.
