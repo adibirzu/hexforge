@@ -51,6 +51,7 @@ class HexStrikeRAG:
 
     def _init_chromadb(self):
         """Initialize ChromaDB"""
+        global CHROMADB_AVAILABLE
         if not CHROMADB_AVAILABLE:
             return
 
@@ -75,6 +76,7 @@ class HexStrikeRAG:
 
     def _init_embeddings(self):
         """Initialize embedding model"""
+        global EMBEDDINGS_AVAILABLE
         if not EMBEDDINGS_AVAILABLE:
             return
 

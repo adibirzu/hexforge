@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# HexStrike AI Enhanced - Comprehensive Installer
+# HexForge - Comprehensive Installer
 # Supports Persistence, RAG, Evolution, and Reporting
 
 # Colors for better output
@@ -11,7 +11,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 echo -e "${BLUE}================================================================${NC}"
-echo -e "${BLUE}🚀 HexStrike AI Enhanced v6.5 - Installation Script${NC}"
+echo -e "${BLUE}🚀 HexForge v6.5 - Installation Script${NC}"
 echo -e "${BLUE}================================================================${NC}"
 
 # 1. Create directory structure
@@ -81,12 +81,14 @@ else
 fi
 
 echo -e "\n${BLUE}================================================================${NC}"
-echo -e "${GREEN}🎉 HexStrike AI Enhanced v6.5 installation complete!${NC}"
+echo -e "${GREEN}🎉 HexForge v6.5 installation complete!${NC}"
 echo -e "${BLUE}================================================================${NC}"
 echo -e "\n${YELLOW}To start the server:${NC}"
 echo -e "  1. source $VENV_NAME/bin/activate"
-echo -e "  2. python3 hexstrike_server.py"
+echo -e "  2. python3 hexstrike_server.py          # or: deploy/run-operator.sh"
+echo -e "     If :8888 is already taken by legacy v6.0, use HEXSTRIKE_PORT=8889."
 echo -e "\n${YELLOW}To start the MCP client:${NC}"
 echo -e "  1. source $VENV_NAME/bin/activate"
 echo -e "  2. python3 hexstrike_mcp.py --server http://localhost:8888"
+echo -e "     HEXSTRIKE_URL / HEXSTRIKE_PORT override the default (see deploy/FLEET.md)."
 echo -e "${BLUE}================================================================${NC}"

@@ -1,4 +1,4 @@
-# HexStrike AI Enhancement Plan v2.1
+# HexForge Enhancement Plan v2.1
 
 ## Focused Improvements - Only Missing Features
 
