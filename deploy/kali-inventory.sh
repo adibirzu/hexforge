@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Generates the KaliVM toolchain inventory manifest (JSON) for HexStrike AI Enhanced.
+# Generates the KaliVM toolchain inventory manifest (JSON) for HexForge.
 #
 # Captures: OS/kernel/arch, apt package count, Kali metapackages, and a
 # versioned presence map of every tool the platform dispatches. Output goes

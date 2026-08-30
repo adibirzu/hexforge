@@ -7,7 +7,7 @@
         "--server",
         "http://IPADDRESS:8888"
       ],
-      "description": "HexStrike AI v6.0 - Advanced Cybersecurity Automation Platform. Turn off alwaysAllow if you dont want autonomous execution!",
+      "description": "HexForge v6.5 - Autonomous pentest platform (persistence, RAG, checkpoints). Turn off alwaysAllow if you dont want autonomous execution!",
       "timeout": 300,
       "alwaysAllow": []
     }

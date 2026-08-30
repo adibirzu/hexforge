@@ -13,16 +13,9 @@ from pathlib import Path
 import threading
 import os
 
-# Import existing classes to serialize their output
-# These imports are READ-ONLY - we don't modify these classes
-try:
-    # Adding parent directory to path to ensure imports work if run from different places
-    import sys
-    sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-    from hexstrike_server import TargetProfile, AttackChain
-except ImportError:
-    TargetProfile = None
-    AttackChain = None
+# TargetProfile / AttackChain from hexstrike_server are not imported here.
+# save_target_profile duck-types the profile (to_dict / __dict__) so this
+# module can load without pulling in the Flask server (circular import).
 
 
 class HexStrikePersistence:

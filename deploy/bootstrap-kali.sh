@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Idempotent prerequisite bootstrap for the KaliVM execution host.
 #
-# Brings every pentest tool HexStrike AI Enhanced and AetherOps depend on
+# Brings every pentest tool HexForge and AetherOps depend on
 # "in place": apt packages first, symlink fixes second, pinned Go tools last.
 # Safe to re-run; already-present tools are skipped in seconds.
 #
@@ -35,7 +35,7 @@ APT_TOOLS=(
   wafw00f dnsrecon fierce theharvester spiderfoot legion
   dirsearch testssl.sh bettercap seclists subfinder httpx-toolkit
   feroxbuster autorecon arjun eyewitness sherlock assetfinder dnsx crlfuzz
-  # platform prereqs for HexStrike server & Go builds
+  # platform prereqs for HexForge server & Go builds
   python3 python3-pip python3-venv git curl unzip ca-certificates golang
 )
 
